@@ -588,7 +588,7 @@ function initStripe() {
   }
 
   // Production: initialize Stripe Elements
-  // Requires: <script src="https://js.stripe.com/v3/"></script> in <head>
+  // Requires: <script src="https://js.stripe.com/v3/"><\/script> in <head>
   const stripe = Stripe(KRGA_CONFIG.stripe.publishableKey);
   const elements = stripe.elements();
   const cardEl = elements.create('card', {
