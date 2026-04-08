@@ -144,8 +144,9 @@ html,body{
 /* ─── SCREEN 1: PAYMENT ─── */
 .s1-top{
   background:var(--black);padding:60px 28px 28px;
-  display:flex;align-items:center;gap:14px;
+  display:flex;flex-direction:column;gap:14px;
 }
+.s1-nav{display:flex;align-items:center;gap:14px;}
 .back-btn{
   width:40px;height:40px;border-radius:50%;
   border:1px solid rgba(255,255,255,0.13);background:transparent;
@@ -283,7 +284,7 @@ html,body{
   <div class="screen active" id="s0">
     <div class="s0-top">
       <div>
-        <img class="logo-img" src="../assets/logo-color.png" alt="krga">
+        <img class="logo-img" src="assets/logo-color.png" alt="krga">
         <div class="logo-tag" data-i18n="tagline">charge your phone, always</div>
       </div>
       <div class="station-chip">
@@ -343,12 +344,15 @@ html,body{
   <!-- ══ SCREEN 1 — Payment ══ -->
   <div class="screen" id="s1">
     <div class="s1-top">
-      <button class="back-btn" onclick="show('s0')">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
-      </button>
-      <div>
-        <div class="s1-lbl" data-i18n="confirmRent">Confirm your rental</div>
-        <div class="s1-title" data-i18n="paymentMethod">Payment method</div>
+      <img class="logo-img" src="assets/logo-color.png" alt="krga">
+      <div class="s1-nav">
+        <button class="back-btn" onclick="show('s0')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+        </button>
+        <div>
+          <div class="s1-lbl" data-i18n="confirmRent">Confirm your rental</div>
+          <div class="s1-title" data-i18n="paymentMethod">Payment method</div>
+        </div>
       </div>
     </div>
 
@@ -401,6 +405,7 @@ html,body{
   <!-- ══ SCREEN 2 — Active Rental ══ -->
   <div class="screen" id="s2">
     <div class="s2-top">
+      <img class="logo-img" src="assets/logo-color.png" alt="krga" style="margin-bottom:4px;">
       <div class="s2-lbl" data-i18n="activeRental">Active rental</div>
       <div class="s2-title" data-i18n="pickUpBattery">Pick up your battery!</div>
     </div>
@@ -441,6 +446,7 @@ html,body{
   <!-- ══ SCREEN 3 — Receipt ══ -->
   <div class="screen" id="s3">
     <div class="s3-top">
+      <img class="logo-img" src="assets/logo-color.png" alt="krga" style="margin-bottom:8px;">
       <div class="check-circle">
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="#E8EDB5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 15l7 7 11-13"/>
@@ -729,8 +735,16 @@ function resetApp() {
 
 // ── Placeholder handlers (wire to real APIs in production) ──
 function nearbyStations() {
-  // TODO: connect to KRGA_CONFIG.api.nearbyStations
-  console.log('[krga] nearbyStations: connect to', KRGA_CONFIG.api.nearbyStations);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const link = isIOS ? KRGA_CONFIG.appLinks.appStore : KRGA_CONFIG.appLinks.googlePlay;
+  if (link && link !== '#') {
+    window.open(link, '_blank');
+  } else {
+    // Links not configured yet — open both stores on desktop
+    const { appStore, googlePlay } = KRGA_CONFIG.appLinks;
+    if (appStore && appStore !== '#') window.open(appStore, '_blank');
+    if (googlePlay && googlePlay !== '#') window.open(googlePlay, '_blank');
+  }
 }
 
 function downloadReceipt() {
@@ -747,6 +761,19 @@ document.addEventListener('DOMContentLoaded', () => {
   setLang(currentLang);
   initPaymentNotice();
   initStripe();
+
+  // Demo shortcut: add "Preview receipt" button on Screen 0 footer
+  if (KRGA_CONFIG.demo) {
+    const s0foot = document.querySelector('.s0-foot');
+    if (s0foot) {
+      const previewBtn = document.createElement('button');
+      previewBtn.className = 'btn btn-ghost';
+      previewBtn.style.cssText = 'border:1px dashed var(--taupe-dk);border-radius:12px;font-size:12px;color:var(--muted);margin-top:4px;';
+      previewBtn.textContent = '🧪 Preview receipt (demo only)';
+      previewBtn.onclick = () => { populateReceipt(); show('s3'); };
+      s0foot.appendChild(previewBtn);
+    }
+  }
 });
 </script>
 </body>
